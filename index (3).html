@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinSage - Smart Financial Document Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',     // Professional blue
+                        secondary: '#4f46e5',   // Financial indigo
+                        dark: '#111827',        // Deep slate
+                        'dark-light': '#1f2937', 
+                        accent: '#10b981',      // Positive green
+                        'accent-light': '#6ee7b7'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 4s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .document-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .document-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        
+        .step-card:hover {
+            transform: scale(1.03);
+        }
+        
+        #drop-zone {
+            border: 2px dashed #d1d5db;
+            width: 100%;
+            min-height: 200px;
+            text-align: center;
+            padding: 24px;
+            border-radius: 12px;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        #drop-zone.drag-over {
+            background-color: #e0f2fe;
+            border-color: #38bdf8;
+        }
+        
+        .tech-icon {
+            height: 70px;
+            width: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #f9fafb;
+            transition: all 0.3s;
+            font-size: 2rem;
+        }
+        
+        .tech-icon:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-card {
+            background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 16px;
+        }
+
+        .benchmarking-card {
+            background: linear-gradient(120deg, #f0f4ff 0%, #e0e7ff 100%);
+            border-radius: 16px;
+        }
+
+        .advice-card {
+            background: linear-gradient(120deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 16px;
+        }
+        
+        .progress-bar {
+            transition: width 1.5s ease-in-out;
+        }
+        
+        .glow {
+            animation: glowAnimation 2s infinite alternate;
+        }
+        
+        @keyframes glowAnimation {
+            from { box-shadow: 0 0 5px -10px #3b82f6; }
+            to { box-shadow: 0 0 20px 0px #3b82f6; }
+        }
+        
+        .dashboard-container {
+            transition: all 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Top navigation -->
+    <header class="sticky top-0 z-50 bg-white shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-primary text-white h-10 w-10 rounded-lg flex items-center justify-center text-xl font-bold">FS</span>
+                    <h1 class="text-2xl font-bold text-dark">Fin<span class="text-accent">Sage</span></h1>
+                </div>
+                
+                <nav class="hidden md:flex space-x-6 font-medium">
+                    <a href="#features" class="hover:text-primary">Features</a>
+                    <a href="#workflow" class="hover:text-primary">Workflow</a>
+                    <a href="#tech" class="hover:text-primary">Technology</a>
+                    <a href="#timeline" class="hover:text-primary">Timeline</a>
+                </nav>
+                
+                <div>
+                    <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium transition">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main hero section -->
+    <section class="py-12 md:py-20 bg-gradient-to-r from-indigo-500/5 via-primary/5 to-accent/5">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <span class="inline-block bg-primary/10 text-primary px-4 py-1 rounded-full text-sm font-medium">AI-Powered Financial Insights</span>
+                    <h1 class="text-4xl md:text-6xl font-bold mt-4 mb-6">Financial Documents,<br><span class="text-primary">Optimized</span> & <span class="text-accent">Simplified</span></h1>
+                    <p class="text-xl text-gray-600 max-w-2xl mb-8">Upload any financial document and receive AI-generated summaries, benchmarks, and actionable recommendations in seconds.</p>
+                    <div class="flex space-x-4">
+                        <button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition shadow-lg">Upload Document</button>
+                        <button class="bg-white hover:bg-gray-50 border-2 border-primary text-primary px-6 py-3 rounded-lg font-medium transition">View Demo</button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl transform -rotate-6"></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl z-10 relative">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-xl font-bold text-dark">Document Summary</div>
+                                <div class="text-sm text-gray-500">Generated by AI at 10:42 AM</div>
+                            </div>
+                            <div class="bg-accent/10 text-accent p-2 rounded-lg">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="text-sm text-gray-500">Document Type</div>
+                                <div class="font-medium">Quarterly Financial Statement</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Key Findings</div>
+                                <div class="text-gray-700">
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>Revenue increased by <span class="text-accent">24%</span> compared to same period last year</li>
+                                        <li>Operating expenses within <span class="text-secondary">10%</span> of industry benchmark</li>
+                                        <li>Inventory turnover improved by <span class="text-accent">15%</span> year-over-year</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                                <div class="flex items-start text-primary">
+                                    <i class="fa-solid fa-lightbulb mt-1 mr-2"></i>
+                                    <div class="font-medium">Strategic Advice: Consider expanding marketing efforts to capitalize on recent revenue growth while current market conditions remain favorable.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Upload section -->
+    <section id="upload" class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center mb-16">
+                <span class="inline-block px-4 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium">Effortless Integration</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 mt-4">Upload Documents from Any Source</h2>
+                <p class="text-gray-600 text-lg">Connect directly to your financial systems or upload documents manually</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <div>
+                    <div id="drop-zone" class="flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-gray-400 mb-4"></i>
+                        <p class="font-medium text-lg text-gray-700 mb-2">Drag & drop files here</p>
+                        <p class="text-gray-500 mb-4">or click to browse</p>
+                        <p class="text-gray-400 text-sm">Supports PDF, JPG, PNG, CSV, email formats</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex p-4 border rounded-lg hover:border-primary hover:bg-primary/5 transition">
+                        <div class="mr-3 text-primary">
+                            <i class="fa-solid fa-envelope text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium">Connect Email Account</div>
+                            <p class="text-gray-600 text-sm">Automatically detect and process emailed financial documents</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex p-4 border rounded-lg hover:border-primary hover:bg-primary/5 transition">
+                        <div class="mr-3 text-secondary">
+                            <i class="fa-solid fa-cloud text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium">Cloud Integrations</div>
+                            <p class="text-gray-600 text-sm">Connect to Google Drive, Dropbox, OneDrive</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex p-4 border rounded-lg hover:border-primary hover:bg-primary/5 transition">
+                        <div class="mr-3 text-accent">
+                            <i class="fa-solid fa-database text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium">Direct Bank Feeds</div>
+                            <p class="text-gray-600 text-sm">Connect directly to financial institutions via API</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold">Processing Status</h3>
+                    <button id="simulate-processing" class="text-sm text-primary hover:text-secondary transition">Simulate Processing</button>
+                </div>
+                <div class="space-y-4">
+                    <div class="step-card bg-white rounded-lg border p-4 grid grid-cols-[auto,1fr,auto] gap-4 items-center">
+                        <div class="h-8 w-8 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium">Secure Ingestion & OCR</div>
+                            <p class="text-gray-500 text-sm">Your file is securely uploaded and text is extracted</p>
+                        </div>
+                        <div id="step1-icon" class="text-gray-400">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white rounded-lg border p-4 grid grid-cols-[auto,1fr,auto] gap-4 items-center">
+                        <div class="h-8 w-8 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium">Document Classification & Field Extraction</div>
+                            <p class="text-gray-500 text-sm">AI identifies document type and extracts key fields</p>
+                        </div>
+                        <div id="step2-icon" class="text-gray-400">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="progress-container" class="hidden gap-4 mt-8">
+                        <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="bg-primary h-full progress-bar w-0"></div>
+                        </div>
+                        <div class="text-right text-sm text-gray-500">Processing <span id="progress-percent">0</span>%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features section -->
+    <section id="features" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center mb-16">
+                <span class="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">AI Capabilities</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 mt-4">Powerful Features for Financial Insights</h2>
+                <p class="text-gray-600">Transform complicated financial documents into actionable intelligence</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="summary-card p-6 rounded-xl flex flex-col h-full">
+                    <div class="flex items-center justify-center w-14 h-14 bg-primary/10 text-primary rounded-lg mb-4">
+                        <i class="fa-solid fa-file-lines text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">AI Summarization</h3>
+                    <p class="text-gray-600 mb-4">Get plain-English explanations of complicated financial documents in seconds.</p>
+                    <ul class="mt-auto space-y-2">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Generates concise summaries tailored for non-experts</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Highlights key metrics and business implications</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green500 mt-1 mr-2"></i>
+                            <span>Translates jargon into understandable terms</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="benchmarking-card p-6 rounded-xl flex flex-col h-full">
+                    <div class="flex items-center justify-center w-14 h-14 bg-purple-100 text-purple-600 rounded-lg mb-4">
+                        <i class="fa-solid fa-chart-line text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Privacy-First Benchmarking</h3>
+                    <p class="text-gray-600 mb-4">Compare your performance against anonymized industry peers while preserving confidentiality.</p>
+                    <ul class="mt-auto space-y-2">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Analyzes key financial ratios and growth metrics</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Identifies competitive advantages and weaknesses</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green500 mt-1 mr-2"></i>
+                            <span>Fully GDPR and CCPA compliant platform</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="advice-card p-6 rounded-xl flex flex-col h-full">
+                    <div class="flex items-center justify-center w-14 h-14 bg-green-100 text-green-600 rounded-lg mb-4">
+                        <i class="fa-solid fa-lightbulb text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Strategic Advice Engine</h3>
+                    <p class="text-gray-600 mb-4">Receive data-driven recommendations for improving financial outcomes.</p>
+                    <ul class="mt-auto space-y-2">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Suggests lending, investment, and operational improvements</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Predictive analysis for future financial health</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green500 mt-1 mr-2"></i>
+                            <span>Human-in-the-loop feedback for continuous refinement</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Tech Stack Section -->
+    <section id="tech" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center mb-16">
+                <span class="inline-block px-4 py-1 bg-secondary/10 text-secondary rounded-full text-sm font-medium">Built to Scale</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 mt-4">Technology Architecture</h2>
+                <p class="text-gray-600">Combining cutting-edge open-source and cloud-native technologies</p>
+            </div>
+            
+            <div class="bg-gray-50 rounded-2xl p-6 mb-12">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 justify-items-center">
+                    <div class="tech-icon text-blue-500"><i class="fab fa-react"></i></div>
+                    <div class="tech-icon text-green-600"><i class="fab fa-node-js"></i></div>
+                    <div class="tech-icon text-purple-600"><i class="fas fa-server"></i></div>
+                    <div class="tech-icon text-blue-800"><i class="fab fa-docker"></i></div>
+                    <div class="tech-icon text-red-600"><i class="fas fa-database"></i></div>
+                    <div class="tech-icon text-yellow-600"><i class="fas fa-brain"></i></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-8">
+                    <h3 class="text-xl font-bold mb-4 text-center">AI Pipeline Architecture</h3>
+                    <div class="space-y-4">
+                        <div class="step-card bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-start">
+                                <div class="bg-primary/10 text-primary rounded-full h-10 w-10 flex items-center justify-center mr-3">
+                                    <i class="fas fa-file-upload"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">Document Ingestion</div>
+                                    <p class="text-sm text-gray-600">Secure document upload with OCR via Tesseract</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-card bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center mr-3">
+                                    <i class="fas fa-cogs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">AI Processing</div>
+                                    <p class="text-sm text-gray-600">Document classification with LayoutLMv3, extraction with PaddleOCR</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-card bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-start">
+                                <div class="bg-purple-100 text-purple-600 rounded-full h-10 w-10 flex items-center justify-center mr-3">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">Intelligence Layer</div>
+                                    <p class="text-sm text-gray-600">Summarization and advice with Llama 3 and Mixtral models</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-card bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-600 rounded-full h-10 w-10 flex items-center justify-center mr-3">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">Privacy Infrastructure</div>
+                                    <p class="text-sm text-gray-600">Anonymization, secure pooling, and compliance checks</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-center">Highlighted Technologies</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <div class="font-semibold">LayoutLMv3</div>
+                            <p class="text-sm text-gray-600">Document classification and structure understanding</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <div class="font-semibold">Llama 3</div>
+                            <p class="text-sm text-gray-600">Large language model for financial summarization</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                            <div class="font-semibold">Weaviate</div>
+                            <p class="text-sm text-gray-600">Vector database for financial pattern analysis</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                            <div class="font-semibold">Milvus</div>
+                            <p class="text-sm text-gray-600">Similarity search engine for benchmarking</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+                        <h4 class="text-lg font-semibold mb-3">Patentable Innovations</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2"><i class="fa-solid fa-circle-check"></i></span>
+                                <span>Privacy-first financial benchmarking architecture</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2"><i class="fa-solid fa-circle-check"></i></span>
+                                <span>Hybrid structured + LLM document processing pipeline</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2"><i class="fa-solid fa-circle-check"></i></span>
+                                <span>Real-time advice from pooled financial patterns</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Workflow section -->
+    <section id="workflow" class="py-16 bg-gradient-to-br from-indigo-50 to-blue-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center mb-16">
+                <span class="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">Efficient Processing</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 mt-4">Intelligent Document Processing Workflow</h2>
+                <p class="text-gray-600">Our 8-step pipeline transforms documents into actionable insights</p>
+            </div>
+            
+            <div class="relative">
+                <!-- Vertical line for timeline -->
+                <div class="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 top-0 bottom-0 w-1 bg-blue-200 rounded-full z-0"></div>
+                
+                <div class="space-y-10 relative z-10">
+                    <!-- Step 1 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 hidden md:block"></div>
+                        <div class="rounded-full h-8 w-8 bg-primary text-white flex items-center justify-center flex-shrink-0 z-10">
+                            <span>1</span>
+                        </div>
+                        <div class="step-card ml-6 md:ml-0 bg-white rounded-lg shadow-lg p-6 flex-1 max-w-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-blue-100 text-blue-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-upload text-lg"></i>
+                                </div>
+                                <div class="font-bold text-lg">Document Upload/Connection</div>
+                            </div>
+                            <p class="text-gray-600">Secure upload of financial documents from multiple sources: PDF, images, CSV, or email accounts</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="flex items-center justify-between">
+                        <div class="step-card mr-6 md:mr-0 bg-white rounded-lg shadow-lg p-6 flex-1 max-w-lg order-last md:order-none">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-purple-100 text-purple-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-unlock text-lg"></i>
+                                </div>
+                                <div class="font-bold text-lg">Secure Ingestion & OCR</div>
+                            </div>
+                            <p class="text-gray-600">Documents are securely ingested with OCR text extraction for various document formats</p>
+                        </div>
+                        <div class="rounded-full h-8 w-8 bg-primary text-white flex items-center justify-center flex-shrink-0 z-10">
+                            <span>2</span>
+                        </div>
+                        <div class="flex-1 hidden md:block"></div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 hidden md:block"></div>
+                        <div class="rounded-full h-8 w-8 bg-primary text-white flex items-center justify-center flex-shrink-0 z-10">
+                            <span>3</span>
+                        </div>
+                        <div class="step-card ml-6 md:ml-0 bg-white rounded-lg shadow-lg p-6 flex-1 max-w-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-yellow-100 text-yellow-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-file-invoice text-lg"></i>
+                                </div>
+                                <div class="font-bold text-lg">Classification & Field Extraction</div>
+                            </div>
+                            <p class="text-gray-600">AI classifies document type and extracts structured financial data fields</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="flex items-center justify-between">
+                        <div class="step-card mr-6 md:mr-0 bg-white rounded-lg shadow-lg p-6 flex-1 max-w-lg order-last md:order-none">
+                            <div class="flex items-center mb-3">
+                                <div class="bg-green-100 text-green-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-comments text-lg"></i>
+                                </div>
+                                <div class="font-bold text-lg">Layman Summarization</div>
+                            </div>
+                            <p class="text-gray-600">LLMs generate plain-English explanations of financial documents for non-experts</p>
+                        </div>
+                        <div class="rounded-full h-8 w-8 bg-primary text-white flex items-center justify-center flex-shrink-0 z-10">
+                            <span>4</span>
+                        </div>
+                        <div class="flex-1 hidden md:block"></div>
+                    </div>
+                    
+                    <!-- Steps 5-8 condensed for brevity -->
+                    <div class="flex justify-center">
+                        <div class="bg-white border border-gray-200 rounded-lg px-6 py-4 inline-block">
+                            <div class="flex space-x-2 text-gray-400">
+                                <i class="fas fa-forward fa-lg mt-1"></i>
+                                <span>Steps 5-8 continue with anonymization, benchmarking, advice, and feedback</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Timeline section -->
+    <section id="timeline" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center mb-16">
+                <span class="inline-block px-4 py-1 bg-secondary/10 text-secondary rounded-full text-sm font-medium">Development Path</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 mt-4">Project Development Timeline</h2>
+                <p class="text-gray-600">8-week roadmap to deliver the complete solution</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <!-- Weeks 1-3 -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="border border-gray-200 rounded-xl p-6">
+                        <div class="text-primary text-5xl font-bold">1-2</div>
+                        <div class="font-bold text-lg mb-3">MVP Core Features</div>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span>Document upload processes</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span>Structured data extraction</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span>Basic document classification</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-xl p-6">
+                        <div class="text-primary text-5xl font-bold">2-3</div>
+                        <div class="font-bold text-lg mb-3">Intelligence Layer</div>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-purple-500 mt-1 mr-2"></i>
+                                <span>Foundation model integration</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-purple-500 mt-1 mr-2"></i>
+                                <span>Financial prompt engineering</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-purple-500 mt-1 mr-2"></i>
+                                <span>Multi-document summarization</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-xl p-6">
+                        <div class="text-primary text-5xl font-bold">4-5</div>
+                        <div class="font-bold text-lg mb-3">Advice Engine</div>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>Pattern recognition algorithm</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>Benchmarking architecture</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>Advice generation pipeline</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Weeks 6-8 -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="border border-gray-200 rounded-xl p-6">
+                        <div class="text-primary text-5xl font-bold">6-7</div>
+                        <div class="font-bold text-lg mb-3">UX & Monetization</div>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>User dashboard design</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>Payments & subscription</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>API gateway configuration</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-xl p-6">
+                        <div class="text-primary text-5xl font-bold">7-8</div>
+                        <div class="font-bold text-lg mb-3">Optimization</div>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>Model fine-tuning & distillation</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>SLA performance optimization</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle text-gray-300 mt-1 mr-2"></i>
+                                <span>Enterprise security hardening</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border-2 border-primary rounded-xl p-6 bg-primary/5 relative overflow-hidden">
+                        <div class="absolute top-2 right-2 text-primary">
+                            <i class="fa-solid fa-flag fa-2x opacity-30"></i>
+                        </div>
+                        <div class="text-primary text-5xl font-bold">8+</div>
+                        <div class="font-bold text-lg mb-3">Deployment</div>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-caret-right text-primary mt-1 mr-2"></i>
+                                <span>Cloud service rollout</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-caret-right text-primary mt-1 mr-2"></i>
+                                <span>Patent application submissions</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-caret-right text-primary mt-1 mr-2"></i>
+                                <span>Continuous improvement cadence</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Get started section -->
+    <section class="py-16 bg-gradient-to-r from-primary to-secondary">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Transform Financial Analysis?</h2>
+                <p class="text-blue-100 text-lg mb-8">Join our beta program and become an early adopter of the AI-powered financial assistant</p>
+                
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button class="bg-white text-primary hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition shadow-lg">Request Demo</button>
+                    <button class="bg-transparent hover:bg-white/10 text-white border border-white px-6 py-3 rounded-lg font-medium transition">Developer Access</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h2 class="text-xl font-bold mb-4 text-white">Fin<span class="text-accent">Sage</span></h2>
+                    <p class="mb-4">AI-powered financial document analysis for deep insights and actionable recommendations.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Product</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Features</a></li>
+                        <li><a href="#" class="hover:text-white transition">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white transition">API Docs</a></li>
+                        <li><a href="#" class="hover:text-white transition">Security</a></li>
+                        <li><a href="#" class="hover:text-white transition">Roadmap</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition">Community</a></li>
+                        <li><a href="#" class="hover:text-white transition">Support</a></li>
+                        <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Subscribe</h3>
+                    <p class="mb-4">Stay updated with new features and product news</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="bg-gray-800 rounded-l-lg px-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <button class="bg-primary hover:bg-blue-700 px-4 rounded-r-lg">
+                            <i class="fas fa-arrow-right text-white"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 text-sm flex flex-col md:flex-row justify-between items-center">
+                <p>&copy; 2025 FinSage AI. All rights reserved.</p>
+                <div class="mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition mr-6">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition mr-6">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition">AI Ethics Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Processing simulation
+        document.getElementById('simulate-processing').addEventListener('click', function() {
+            const steps = ['step1-icon', 'step2-icon'];
+            const progressBar = document.getElementById('progress-bar');
+            const percentDisplay = document.getElementById('progress-percent');
+            const container = document.getElementById('progress-container');
+            
+            container.classList.remove('hidden');
+            container.classList.add('grid');
+            
+            // Reset progress
+            progressBar.style.width = '0%';
+            percentDisplay.textContent = '0';
+            
+            // Simulate processing
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    // Complete step icons
+                    steps.forEach(id => {
+                        const el = document.getElementById(id);
+                        el.innerHTML = '<i class="fas fa-check-circle text-green-500"></i>';
+                    });
+                } else {
+                    width += 2;
+                    progressBar.style.width = width + '%';
+                    percentDisplay.textContent = width;
+                    
+                    // Update step icons at certain points
+                    if (width > 15 && width < 20) {
+                        document.getElementById('step1-icon').innerHTML = '<i class="fas fa-check-circle text-green-500"></i>';
+                    }
+                    if (width > 55 && width < 60) {
+                        document.getElementById('step2-icon').innerHTML = '<i class="fas fa-check-circle text-green-500"></i>';
+                    }
+                }
+            }, 60);
+        });
+        
+        // Drag and drop functionality for file upload
+        const dropZone = document.getElementById('drop-zone');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropZone.classList.add('drag-over');
+        }
+        
+        function unhighlight() {
+            dropZone.classList.remove('drag-over');
+        }
+        
+        // Handle file drop
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            if(files.length) {
+                alert(`File ${files[0].name} uploaded successfully! Simulating processing...`);
+                document.getElementById('simulate-processing').click();
+            }
+        }
+        
+        // Toggle mobile menu would go here if implemented
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=OBITO2OP/smart-fintech-assistant" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
