@@ -96,7 +96,6 @@ Build a web-based product that ingests, processes, summarizes, and delivers stra
 
 ---
 
-### Project Timeline (Gantt Chart with Dependencies & Deliverable Milestones)  
 
 
 
